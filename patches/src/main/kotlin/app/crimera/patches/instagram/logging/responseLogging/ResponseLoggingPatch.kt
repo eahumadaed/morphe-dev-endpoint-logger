@@ -35,12 +35,14 @@ val responseLoggingPatch =
         compatibleWith(COMPATIBILITY_INSTAGRAM)
 
         execute {
-            InputStreamFingerprint.method.addInstructions(
-                0,
-                """
-                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStream(Ljava/io/InputStream;)Ljava/io/InputStream;
-                move-result-object p1
-                """.trimIndent(),
-            )
+            runCatching {
+                InputStreamFingerprint.method.addInstructions(
+                    0,
+                    """
+                    invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStream(Ljava/io/InputStream;)Ljava/io/InputStream;
+                    move-result-object p1
+                    """.trimIndent(),
+                )
+            }
         }
     }

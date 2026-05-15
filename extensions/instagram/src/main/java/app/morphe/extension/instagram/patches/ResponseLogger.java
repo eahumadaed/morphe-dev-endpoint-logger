@@ -58,11 +58,35 @@ public class ResponseLogger {
         try {
             byte[] data = readAllBytes(inputStream);
             String endpoint = Links.consumeLastEndpoint();
+            logHookPing(hookSource, endpoint, data.length);
             logResponse(hookSource, endpoint, data);
             return new ByteArrayInputStream(data);
         } catch (Exception ex) {
             Logger.printException(() -> "ResponseLogger.saveInputStream failed", ex);
             return inputStream;
+        }
+    }
+
+    private static void logHookPing(String hookSource, String endpoint, int totalBytes) {
+        FileWriter writer = null;
+        try {
+            File logDir = resolveLogDir();
+            if (!logDir.exists() && !logDir.mkdirs()) {
+                return;
+            }
+            File trace = new File(logDir, "_response_hook_trace.log");
+            writer = new FileWriter(trace, true);
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date());
+            writer.write("[" + timestamp + "] HOOK=" + hookSource + " ENDPOINT=" + endpoint + " BYTES=" + totalBytes);
+            writer.write("\n");
+        } catch (Exception ignored) {
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (Exception ignored) {
+                }
+            }
         }
     }
 

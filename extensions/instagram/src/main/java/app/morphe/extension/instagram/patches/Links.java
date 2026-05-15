@@ -39,6 +39,7 @@ import app.morphe.extension.instagram.settings.ActivityHook;
 @SuppressWarnings("unused")
 public class Links {
     private static final ThreadLocal<String> LAST_ENDPOINT = new ThreadLocal<>();
+    private static volatile String LAST_ENDPOINT_GLOBAL = "unknown";
     private static final boolean DISABLE_ANALYTICS;
     private static final boolean VIEW_STORIES_ANONYMOUSLY;
     private static final boolean VIEW_LIVE_ANONYMOUSLY;
@@ -89,6 +90,7 @@ public class Links {
                 String endpoint = endpointFileName(uri);
                 if (shouldLogEndpoint(endpoint)) {
                     LAST_ENDPOINT.set(endpoint);
+                    LAST_ENDPOINT_GLOBAL = endpoint;
                     logRequest(endpoint, uri);
                 } else {
                     LAST_ENDPOINT.remove();
@@ -129,10 +131,10 @@ public class Links {
 
     public static String consumeLastEndpoint() {
         String endpoint = LAST_ENDPOINT.get();
-        if (endpoint == null || endpoint.isEmpty()) {
-            return "unknown";
+        if (endpoint != null && !endpoint.isEmpty()) {
+            return endpoint;
         }
-        return endpoint;
+        return LAST_ENDPOINT_GLOBAL;
     }
 
     public static boolean shouldLogEndpoint(String endpoint) {

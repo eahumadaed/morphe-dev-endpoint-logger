@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-05-15T11:12:41",
-  "description": "## [1.1.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.0...v1.1.1) (2026-05-15)\n\n\n### Bug Fixes\n\n* widen instagram response hook to static parser methods ([318f87e](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/318f87ecdbc4c449065e71f5938510c22f18293f))",
-  "download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.1.1/patches-1.1.1.mpp",
-  "signature_download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.1.1/patches-1.1.1.mpp.asc",
-  "version": "1.1.1"
+  "created_at": "2026-05-15T11:24:52",
+  "description": "## [1.1.2](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.1...v1.1.2) (2026-05-15)\n\n\n### Bug Fixes\n\n* add cascade fallback fingerprints for instagram response hooks ([c9dc169](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/c9dc1690e12cca526cc3d1eeb61c696623756973))",
+  "download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.1.2/patches-1.1.2.mpp",
+  "signature_download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.1.2/patches-1.1.2.mpp.asc",
+  "version": "1.1.2"
 }

@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.1...v1.1.2) (2026-05-15)
+
+
+### Bug Fixes
+
+* add cascade fallback fingerprints for instagram response hooks ([c9dc169](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/c9dc1690e12cca526cc3d1eeb61c696623756973))
+
 ## [1.1.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.0...v1.1.1) (2026-05-15)
 
 

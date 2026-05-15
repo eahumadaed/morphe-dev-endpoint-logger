@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.0.1...v1.1.0) (2026-05-15)
+
+
+### Features
+
+* capture request payload heuristically and bump to 1.0.2 ([285d6be](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/285d6be5d516bf094427a6569855d20ef10254f1))
+* log only api_v and graphql endpoints ([8a0da0e](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/8a0da0eea0bf9d4b67c3b7374f00abadf1745d9a))
+
 ## [1.0.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.0.0...v1.0.1) (2026-05-15)
 
 # 1.0.0 (2026-05-15)

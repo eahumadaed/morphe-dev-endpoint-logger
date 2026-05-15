@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.3...v1.2.0) (2026-05-15)
+
+
+### Features
+
+* aggressive response diagnostics (InputStream/byte[]/String) and request shape logging ([4f445fc](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/4f445fc05bd3a6420ecfd5c7373c41ac8c95e67c))
+
 ## [1.1.3](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.2...v1.1.3) (2026-05-15)
 
 

@@ -142,19 +142,6 @@ internal object ByteBufferFingerprintStatic : Fingerprint(
     },
 )
 
-private fun injectOrNull(
-    fingerprint: Fingerprint,
-    register: String,
-    smaliSnippet: String,
-): String? =
-    runCatching {
-        fingerprint.method.addInstructions(
-            0,
-            smaliSnippet.trimIndent(),
-        )
-        register
-    }.getOrNull()
-
 @Suppress("unused")
 val responseLoggingPatch =
     bytecodePatch(
@@ -164,6 +151,19 @@ val responseLoggingPatch =
         compatibleWith(COMPATIBILITY_INSTAGRAM)
 
         execute {
+            fun injectOrNull(
+                fingerprint: Fingerprint,
+                register: String,
+                smaliSnippet: String,
+            ): String? =
+                runCatching {
+                    fingerprint.method.addInstructions(
+                        0,
+                        smaliSnippet.trimIndent(),
+                    )
+                    register
+                }.getOrNull()
+
             val matchedHooks = mutableListOf<String>()
 
             injectOrNull(

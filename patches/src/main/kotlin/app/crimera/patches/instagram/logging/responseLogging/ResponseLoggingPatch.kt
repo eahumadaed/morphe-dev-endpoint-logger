@@ -27,6 +27,14 @@ internal object InputStreamFingerprintPrimary : Fingerprint(
     },
 )
 
+internal object InputStreamFingerprintPrimaryStatic : Fingerprint(
+    definingClass = JACKSON_CLASS,
+    parameters = listOf("Ljava/io/InputStream"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) && methodDef.returnType.contains(JACKSON_CLASS)
+    },
+)
+
 internal object InputStreamFingerprintByName : Fingerprint(
     parameters = listOf("Ljava/io/InputStream"),
     custom = { methodDef, _ ->
@@ -40,6 +48,14 @@ internal object InputStreamFingerprintByReturnType : Fingerprint(
     parameters = listOf("Ljava/io/InputStream"),
     custom = { methodDef, _ ->
         !AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            (methodDef.returnType.contains(JACKSON_CLASS) || methodDef.returnType.contains("JsonParser"))
+    },
+)
+
+internal object InputStreamFingerprintByReturnTypeStatic : Fingerprint(
+    parameters = listOf("Ljava/io/InputStream"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
             (methodDef.returnType.contains(JACKSON_CLASS) || methodDef.returnType.contains("JsonParser"))
     },
 )
@@ -64,6 +80,15 @@ val responseLoggingPatch =
                     )
                 }.isSuccess ||
                     runCatching {
+                        InputStreamFingerprintPrimaryStatic.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamPrimary(Ljava/io/InputStream;)Ljava/io/InputStream;
+                            move-result-object p0
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
                         InputStreamFingerprintByName.method.addInstructions(
                             0,
                             """
@@ -78,6 +103,15 @@ val responseLoggingPatch =
                             """
                             invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
                             move-result-object p1
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        InputStreamFingerprintByReturnTypeStatic.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
+                            move-result-object p0
                             """.trimIndent(),
                         )
                     }.isSuccess

@@ -69,6 +69,9 @@ public class ResponseLogger {
     private static void logResponse(String hookSource, String endpoint, byte[] data) {
         FileWriter writer = null;
         try {
+            if (!Links.shouldLogEndpoint(endpoint)) {
+                return;
+            }
             File logDir = resolveLogDir();
             if (!logDir.exists() && !logDir.mkdirs()) {
                 return;

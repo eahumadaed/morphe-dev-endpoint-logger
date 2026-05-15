@@ -87,8 +87,12 @@ public class Links {
         try {
             if (uri != null) {
                 String endpoint = endpointFileName(uri);
-                LAST_ENDPOINT.set(endpoint);
-                logRequest(endpoint, uri);
+                if (shouldLogEndpoint(endpoint)) {
+                    LAST_ENDPOINT.set(endpoint);
+                    logRequest(endpoint, uri);
+                } else {
+                    LAST_ENDPOINT.remove();
+                }
             }
         } catch (Exception ex) {
             Logger.printException(() -> "interceptRequest logging failed", ex);
@@ -99,6 +103,9 @@ public class Links {
     public static void interceptRequestPayload(Object requestObject, URI uri) {
         try {
             String endpoint = endpointFileName(uri);
+            if (!shouldLogEndpoint(endpoint)) {
+                return;
+            }
             String body = extractPayloadText(requestObject);
             File logDir = resolveLogDir();
             if (!logDir.exists() && !logDir.mkdirs()) {
@@ -126,6 +133,14 @@ public class Links {
             return "unknown";
         }
         return endpoint;
+    }
+
+    public static boolean shouldLogEndpoint(String endpoint) {
+        if (endpoint == null || endpoint.isEmpty()) {
+            return false;
+        }
+        String v = endpoint.toLowerCase(Locale.US);
+        return v.contains("api_v") || v.contains("graphql");
     }
 
     public static void interceptUri(URI uri) throws IOException{

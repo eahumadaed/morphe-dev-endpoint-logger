@@ -1,5 +1,5 @@
 {
-  "version": "3.3.0",
+  "version": "1.0.0",
   "patches": [
     {
       "name": "Add ability to copy media link",
@@ -1963,6 +1963,31 @@
               "isExperimental": false,
               "minSdk": null,
               "description": null
+            }
+          ]
+        }
+      ],
+      "options": []
+    },
+    {
+      "name": "Endpoint response logger",
+      "description": "Logs parser InputStream payloads to endpoint response logs",
+      "default": true,
+      "dependencies": [],
+      "compatiblePackages": [
+        {
+          "packageName": "com.instagram.android",
+          "name": "Instagram",
+          "description": null,
+          "apkFileType": "APKM",
+          "appIconColor": "#FC483C",
+          "signatures": null,
+          "targets": [
+            {
+              "version": "426.0.0.37.68",
+              "isExperimental": false,
+              "minSdk": null,
+              "description": "Tested on version code - 383207248, 383207252"
             }
           ]
         }

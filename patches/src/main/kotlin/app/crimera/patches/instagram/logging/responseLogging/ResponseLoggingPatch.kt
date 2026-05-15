@@ -60,6 +60,22 @@ internal object InputStreamFingerprintByReturnTypeStatic : Fingerprint(
     },
 )
 
+internal object InputStreamFingerprintAnyInstance : Fingerprint(
+    parameters = listOf("Ljava/io/InputStream"),
+    custom = { methodDef, _ ->
+        !AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object InputStreamFingerprintAnyStatic : Fingerprint(
+    parameters = listOf("Ljava/io/InputStream"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
 @Suppress("unused")
 val responseLoggingPatch =
     bytecodePatch(
@@ -111,6 +127,24 @@ val responseLoggingPatch =
                             0,
                             """
                             invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
+                            move-result-object p0
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        InputStreamFingerprintAnyInstance.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
+                            move-result-object p1
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        InputStreamFingerprintAnyStatic.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
                             move-result-object p0
                             """.trimIndent(),
                         )

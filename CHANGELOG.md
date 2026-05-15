@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.2.0...v1.3.0) (2026-05-15)
+
+
+### Bug Fixes
+
+* move response hook injector into patch execute context ([4565cca](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/4565cca428bf4d9bfeca1a89b2c03f9da77d9c64))
+
+
+### Features
+
+* widen response hooks and capture bytebuffer/stringbuilder payloads ([cf606b6](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/cf606b623fdc60ab7590fa658afad6cf4ef1d589))
+
 # [1.2.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.3...v1.2.0) (2026-05-15)
 
 

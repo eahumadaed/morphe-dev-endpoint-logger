@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.0...v1.1.1) (2026-05-15)
+
+
+### Bug Fixes
+
+* widen instagram response hook to static parser methods ([318f87e](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/318f87ecdbc4c449065e71f5938510c22f18293f))
+
 # [1.1.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.0.1...v1.1.0) (2026-05-15)
 
 

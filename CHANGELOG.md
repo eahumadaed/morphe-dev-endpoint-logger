@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.2...v1.1.3) (2026-05-15)
+
+
+### Bug Fixes
+
+* add cross-thread endpoint fallback and response hook trace ([1b3449b](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/1b3449b5a3d3017d4c2ae850a6878b8af8cd20ec))
+
 ## [1.1.2](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.1.1...v1.1.2) (2026-05-15)
 
 

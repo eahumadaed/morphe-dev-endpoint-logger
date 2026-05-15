@@ -31,15 +31,34 @@ import app.morphe.extension.shared.Utils;
 @SuppressWarnings("unused")
 public class ResponseLogger {
     private static final int MAX_LOG_BYTES = 512 * 1024;
+    private static final String HOOK_PRIMARY = "primary_fasterxml";
+    private static final String HOOK_BY_NAME = "fallback_createparser_name";
+    private static final String HOOK_BY_RETURN = "fallback_returntype";
 
     public static InputStream saveInputStream(InputStream inputStream) {
+        return saveWithHook("legacy", inputStream);
+    }
+
+    public static InputStream saveInputStreamPrimary(InputStream inputStream) {
+        return saveWithHook(HOOK_PRIMARY, inputStream);
+    }
+
+    public static InputStream saveInputStreamByName(InputStream inputStream) {
+        return saveWithHook(HOOK_BY_NAME, inputStream);
+    }
+
+    public static InputStream saveInputStreamByReturnType(InputStream inputStream) {
+        return saveWithHook(HOOK_BY_RETURN, inputStream);
+    }
+
+    private static InputStream saveWithHook(String hookSource, InputStream inputStream) {
         if (inputStream == null) {
             return null;
         }
         try {
             byte[] data = readAllBytes(inputStream);
             String endpoint = Links.consumeLastEndpoint();
-            logResponse(endpoint, data);
+            logResponse(hookSource, endpoint, data);
             return new ByteArrayInputStream(data);
         } catch (Exception ex) {
             Logger.printException(() -> "ResponseLogger.saveInputStream failed", ex);
@@ -47,7 +66,7 @@ public class ResponseLogger {
         }
     }
 
-    private static void logResponse(String endpoint, byte[] data) {
+    private static void logResponse(String hookSource, String endpoint, byte[] data) {
         FileWriter writer = null;
         try {
             File logDir = resolveLogDir();
@@ -64,7 +83,7 @@ public class ResponseLogger {
             int writeBytes = Math.min(totalBytes, MAX_LOG_BYTES);
             String text = new String(data, 0, writeBytes, StandardCharsets.UTF_8).replace("\n", "\\n");
 
-            writer.write("[" + timestamp + "] BYTES=" + totalBytes + " PREVIEW_UTF8=" + text);
+            writer.write("[" + timestamp + "] HOOK=" + hookSource + " BYTES=" + totalBytes + " PREVIEW_UTF8=" + text);
             writer.write("\n");
 
             if (totalBytes > MAX_LOG_BYTES) {

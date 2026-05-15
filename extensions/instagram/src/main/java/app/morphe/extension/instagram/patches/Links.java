@@ -109,6 +109,7 @@ public class Links {
                 return;
             }
             String body = extractPayloadText(requestObject);
+            logRequestObjectShape(endpoint, requestObject);
             File logDir = resolveLogDir();
             if (!logDir.exists() && !logDir.mkdirs()) {
                 return;
@@ -367,6 +368,44 @@ public class Links {
             clean = clean.substring(0, 256 * 1024) + "...<truncated>";
         }
         return clean;
+    }
+
+    private static void logRequestObjectShape(String endpoint, Object requestObject) {
+        if (requestObject == null) {
+            return;
+        }
+        FileWriter writer = null;
+        try {
+            File logDir = resolveLogDir();
+            if (!logDir.exists() && !logDir.mkdirs()) {
+                return;
+            }
+            File logFile = new File(logDir, endpoint + "-request-shape.log");
+            writer = new FileWriter(logFile, true);
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date());
+            writer.write("[" + timestamp + "] CLASS=" + requestObject.getClass().getName());
+            Field[] fields = requestObject.getClass().getDeclaredFields();
+            int limit = Math.min(fields.length, 40);
+            for (int i = 0; i < limit; i++) {
+                Field f = fields[i];
+                try {
+                    f.setAccessible(true);
+                    Object v = f.get(requestObject);
+                    writer.write(" | " + f.getName() + "=" + (v == null ? "null" : v.getClass().getName()));
+                } catch (Exception ignored) {
+                }
+            }
+            writer.write("\n");
+        } catch (Exception ex) {
+            Logger.printException(() -> "logRequestObjectShape failed", ex);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     public static String sanitizeUrl(String url){

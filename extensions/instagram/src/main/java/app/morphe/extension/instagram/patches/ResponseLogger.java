@@ -51,6 +51,14 @@ public class ResponseLogger {
         return saveWithHook(HOOK_BY_RETURN, inputStream);
     }
 
+    public static byte[] saveByteArray(byte[] body) {
+        return saveByteArrayWithHook("fallback_bytearray", body);
+    }
+
+    public static String saveString(String body) {
+        return saveStringWithHook("fallback_string", body);
+    }
+
     private static InputStream saveWithHook(String hookSource, InputStream inputStream) {
         if (inputStream == null) {
             return null;
@@ -65,6 +73,35 @@ public class ResponseLogger {
             Logger.printException(() -> "ResponseLogger.saveInputStream failed", ex);
             return inputStream;
         }
+    }
+
+    private static byte[] saveByteArrayWithHook(String hookSource, byte[] body) {
+        if (body == null) {
+            return null;
+        }
+        try {
+            String endpoint = Links.consumeLastEndpoint();
+            logHookPing(hookSource, endpoint, body.length);
+            logResponse(hookSource, endpoint, body);
+        } catch (Exception ex) {
+            Logger.printException(() -> "ResponseLogger.saveByteArray failed", ex);
+        }
+        return body;
+    }
+
+    private static String saveStringWithHook(String hookSource, String body) {
+        if (body == null) {
+            return null;
+        }
+        try {
+            byte[] data = body.getBytes(StandardCharsets.UTF_8);
+            String endpoint = Links.consumeLastEndpoint();
+            logHookPing(hookSource, endpoint, data.length);
+            logResponse(hookSource, endpoint, data);
+        } catch (Exception ex) {
+            Logger.printException(() -> "ResponseLogger.saveString failed", ex);
+        }
+        return body;
     }
 
     private static void logHookPing(String hookSource, String endpoint, int totalBytes) {
@@ -93,9 +130,6 @@ public class ResponseLogger {
     private static void logResponse(String hookSource, String endpoint, byte[] data) {
         FileWriter writer = null;
         try {
-            if (!Links.shouldLogEndpoint(endpoint)) {
-                return;
-            }
             File logDir = resolveLogDir();
             if (!logDir.exists() && !logDir.mkdirs()) {
                 return;

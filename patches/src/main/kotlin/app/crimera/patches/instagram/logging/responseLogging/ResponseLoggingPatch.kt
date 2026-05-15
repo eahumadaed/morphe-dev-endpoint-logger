@@ -76,6 +76,40 @@ internal object InputStreamFingerprintAnyStatic : Fingerprint(
     },
 )
 
+internal object ByteArrayFingerprintInstance : Fingerprint(
+    parameters = listOf("[B"),
+    custom = { methodDef, _ ->
+        !AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object ByteArrayFingerprintStatic : Fingerprint(
+    parameters = listOf("[B"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object StringFingerprintInstance : Fingerprint(
+    parameters = listOf("Ljava/lang/String;"),
+    custom = { methodDef, _ ->
+        !AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            (methodDef.name.lowercase().contains("parse") || methodDef.name.lowercase().contains("fromjson")) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object StringFingerprintStatic : Fingerprint(
+    parameters = listOf("Ljava/lang/String;"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            (methodDef.name.lowercase().contains("parse") || methodDef.name.lowercase().contains("fromjson")) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
 @Suppress("unused")
 val responseLoggingPatch =
     bytecodePatch(
@@ -145,6 +179,42 @@ val responseLoggingPatch =
                             0,
                             """
                             invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
+                            move-result-object p0
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        ByteArrayFingerprintInstance.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteArray([B)[B
+                            move-result-object p1
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        ByteArrayFingerprintStatic.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteArray([B)[B
+                            move-result-object p0
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        StringFingerprintInstance.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveString(Ljava/lang/String;)Ljava/lang/String;
+                            move-result-object p1
+                            """.trimIndent(),
+                        )
+                    }.isSuccess ||
+                    runCatching {
+                        StringFingerprintStatic.method.addInstructions(
+                            0,
+                            """
+                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveString(Ljava/lang/String;)Ljava/lang/String;
                             move-result-object p0
                             """.trimIndent(),
                         )

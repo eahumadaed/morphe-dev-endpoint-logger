@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,6 +58,38 @@ public class ResponseLogger {
 
     public static String saveString(String body) {
         return saveStringWithHook("fallback_string", body);
+    }
+
+    public static StringBuilder saveStringBuilder(StringBuilder body) {
+        if (body == null) {
+            return null;
+        }
+        try {
+            String endpoint = Links.consumeLastEndpoint();
+            byte[] data = body.toString().getBytes(StandardCharsets.UTF_8);
+            logHookPing("fallback_stringbuilder", endpoint, data.length);
+            logResponse("fallback_stringbuilder", endpoint, data);
+        } catch (Exception ex) {
+            Logger.printException(() -> "ResponseLogger.saveStringBuilder failed", ex);
+        }
+        return body;
+    }
+
+    public static ByteBuffer saveByteBuffer(ByteBuffer body) {
+        if (body == null) {
+            return null;
+        }
+        try {
+            ByteBuffer copy = body.duplicate();
+            byte[] out = new byte[Math.min(copy.remaining(), MAX_LOG_BYTES)];
+            copy.get(out);
+            String endpoint = Links.consumeLastEndpoint();
+            logHookPing("fallback_bytebuffer", endpoint, out.length);
+            logResponse("fallback_bytebuffer", endpoint, out);
+        } catch (Exception ex) {
+            Logger.printException(() -> "ResponseLogger.saveByteBuffer failed", ex);
+        }
+        return body;
     }
 
     private static InputStream saveWithHook(String hookSource, InputStream inputStream) {

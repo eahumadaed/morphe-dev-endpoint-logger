@@ -110,6 +110,51 @@ internal object StringFingerprintStatic : Fingerprint(
     },
 )
 
+internal object StringBuilderFingerprintInstance : Fingerprint(
+    parameters = listOf("Ljava/lang/StringBuilder;"),
+    custom = { methodDef, _ ->
+        !AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object StringBuilderFingerprintStatic : Fingerprint(
+    parameters = listOf("Ljava/lang/StringBuilder;"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object ByteBufferFingerprintInstance : Fingerprint(
+    parameters = listOf("Ljava/nio/ByteBuffer;"),
+    custom = { methodDef, _ ->
+        !AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+internal object ByteBufferFingerprintStatic : Fingerprint(
+    parameters = listOf("Ljava/nio/ByteBuffer;"),
+    custom = { methodDef, _ ->
+        AccessFlags.STATIC.isSet(methodDef.accessFlags) &&
+            methodDef.returnType.startsWith("L")
+    },
+)
+
+private fun injectOrNull(
+    fingerprint: Fingerprint,
+    register: String,
+    smaliSnippet: String,
+): String? =
+    runCatching {
+        fingerprint.method.addInstructions(
+            0,
+            smaliSnippet.trimIndent(),
+        )
+        register
+    }.getOrNull()
+
 @Suppress("unused")
 val responseLoggingPatch =
     bytecodePatch(
@@ -119,109 +164,145 @@ val responseLoggingPatch =
         compatibleWith(COMPATIBILITY_INSTAGRAM)
 
         execute {
-            val hooked =
-                runCatching {
-                    InputStreamFingerprintPrimary.method.addInstructions(
-                        0,
-                        """
-                        invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamPrimary(Ljava/io/InputStream;)Ljava/io/InputStream;
-                        move-result-object p1
-                        """.trimIndent(),
-                    )
-                }.isSuccess ||
-                    runCatching {
-                        InputStreamFingerprintPrimaryStatic.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamPrimary(Ljava/io/InputStream;)Ljava/io/InputStream;
-                            move-result-object p0
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        InputStreamFingerprintByName.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
-                            move-result-object p1
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        InputStreamFingerprintByReturnType.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
-                            move-result-object p1
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        InputStreamFingerprintByReturnTypeStatic.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
-                            move-result-object p0
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        InputStreamFingerprintAnyInstance.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
-                            move-result-object p1
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        InputStreamFingerprintAnyStatic.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
-                            move-result-object p0
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        ByteArrayFingerprintInstance.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteArray([B)[B
-                            move-result-object p1
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        ByteArrayFingerprintStatic.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteArray([B)[B
-                            move-result-object p0
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        StringFingerprintInstance.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveString(Ljava/lang/String;)Ljava/lang/String;
-                            move-result-object p1
-                            """.trimIndent(),
-                        )
-                    }.isSuccess ||
-                    runCatching {
-                        StringFingerprintStatic.method.addInstructions(
-                            0,
-                            """
-                            invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveString(Ljava/lang/String;)Ljava/lang/String;
-                            move-result-object p0
-                            """.trimIndent(),
-                        )
-                    }.isSuccess
+            val matchedHooks = mutableListOf<String>()
 
-            if (!hooked) {
-                // no-op: patch remains installable even if response parser hook is not found
+            injectOrNull(
+                InputStreamFingerprintPrimary,
+                "primary_fasterxml_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamPrimary(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                InputStreamFingerprintPrimaryStatic,
+                "primary_fasterxml_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamPrimary(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                InputStreamFingerprintByName,
+                "fallback_createparser_name_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                InputStreamFingerprintByReturnType,
+                "fallback_returntype_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                InputStreamFingerprintByReturnTypeStatic,
+                "fallback_returntype_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByReturnType(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                InputStreamFingerprintAnyInstance,
+                "fallback_any_inputstream_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                InputStreamFingerprintAnyStatic,
+                "fallback_any_inputstream_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveInputStreamByName(Ljava/io/InputStream;)Ljava/io/InputStream;
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                ByteArrayFingerprintInstance,
+                "fallback_bytearray_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteArray([B)[B
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                ByteArrayFingerprintStatic,
+                "fallback_bytearray_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteArray([B)[B
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                StringFingerprintInstance,
+                "fallback_string_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveString(Ljava/lang/String;)Ljava/lang/String;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                StringFingerprintStatic,
+                "fallback_string_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveString(Ljava/lang/String;)Ljava/lang/String;
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                StringBuilderFingerprintInstance,
+                "fallback_stringbuilder_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveStringBuilder(Ljava/lang/StringBuilder;)Ljava/lang/StringBuilder;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                StringBuilderFingerprintStatic,
+                "fallback_stringbuilder_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveStringBuilder(Ljava/lang/StringBuilder;)Ljava/lang/StringBuilder;
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                ByteBufferFingerprintInstance,
+                "fallback_bytebuffer_instance",
+                """
+                invoke-static {p1}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteBuffer(Ljava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
+                move-result-object p1
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            injectOrNull(
+                ByteBufferFingerprintStatic,
+                "fallback_bytebuffer_static",
+                """
+                invoke-static {p0}, $PATCHES_DESCRIPTOR/ResponseLogger;->saveByteBuffer(Ljava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
+                move-result-object p0
+                """,
+            )?.let { matchedHooks.add(it) }
+
+            if (matchedHooks.isEmpty()) {
+                // no-op: patch remains installable even if no response parser hook is found
             }
         }
     }

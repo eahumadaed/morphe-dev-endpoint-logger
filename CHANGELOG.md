@@ -1,3 +1,5 @@
+## [1.0.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.0.0...v1.0.1) (2026-05-15)
+
 # 1.0.0 (2026-05-15)
 
 

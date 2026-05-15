@@ -20,7 +20,9 @@ import java.io.FileWriter;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import app.morphe.extension.shared.Logger;
@@ -95,17 +97,36 @@ public class ResponseLogger {
     }
 
     private static File resolveLogDir() {
-        File downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        File preferred = new File(downloads, "logpico");
-        if (preferred.exists() || preferred.mkdirs()) {
-            return preferred;
+        List<File> candidates = new ArrayList<>();
+        File externalRoot = Environment.getExternalStorageDirectory();
+        candidates.add(new File(externalRoot, "Android/media/com.instagram.android/logpico"));
+        candidates.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "logpico"));
+        candidates.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "logpico"));
+        candidates.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "logpico"));
+        candidates.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM), "logpico"));
+        candidates.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), "logpico"));
+        candidates.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS), "logpico"));
+
+        File lastCandidate = candidates.get(0);
+        for (File candidate : candidates) {
+            lastCandidate = candidate;
+            try {
+                if (candidate.exists() || candidate.mkdirs()) {
+                    return candidate;
+                }
+            } catch (Exception ignored) {
+            }
         }
 
         File appExternal = Utils.getContext().getExternalFilesDir(null);
-        if (appExternal == null) {
-            return preferred;
+        if (appExternal != null) {
+            File fallback = new File(appExternal, "logpico");
+            if (fallback.exists() || fallback.mkdirs()) {
+                return fallback;
+            }
+            return fallback;
         }
-        return new File(appExternal, "logpico");
+        return lastCandidate;
     }
 
     private static String sanitizeName(String value) {

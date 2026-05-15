@@ -2,8 +2,8 @@ group = "crimera"
 
 patches {
     about {
-        name = "Morphe Dev Endpoint Logger"
-        description = "Development-only Morphe patch set for endpoint request/response logging experiments"
+        name = "edpiko"
+        description = "edpiko dev-only endpoint request/response logger experiments"
         source = "https://github.com/eahumadaed/morphe-dev-endpoint-logger.git"
         author = "eahumadaed"
         contact = "dev-only"

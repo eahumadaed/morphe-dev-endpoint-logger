@@ -10,11 +10,17 @@
 
 
 package app.morphe.extension.instagram.patches;
+import android.os.Environment;
 import android.net.Uri;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import app.morphe.extension.instagram.entity.Entity;
 import app.morphe.extension.instagram.settings.SettingsStatus;
@@ -25,6 +31,7 @@ import app.morphe.extension.instagram.settings.ActivityHook;
 
 @SuppressWarnings("unused")
 public class Links {
+    private static final ThreadLocal<String> LAST_ENDPOINT = new ThreadLocal<>();
     private static final boolean DISABLE_ANALYTICS;
     private static final boolean VIEW_STORIES_ANONYMOUSLY;
     private static final boolean VIEW_LIVE_ANONYMOUSLY;
@@ -69,6 +76,27 @@ public class Links {
     }
 
     // Thanks to InstaEclipse and InstaMoon.
+    public static void interceptRequest(URI uri) throws IOException {
+        try {
+            if (uri != null) {
+                String endpoint = endpointFileName(uri);
+                LAST_ENDPOINT.set(endpoint);
+                logRequest(endpoint, uri);
+            }
+        } catch (Exception ex) {
+            Logger.printException(() -> "interceptRequest logging failed", ex);
+        }
+        interceptUri(uri);
+    }
+
+    public static String consumeLastEndpoint() {
+        String endpoint = LAST_ENDPOINT.get();
+        if (endpoint == null || endpoint.isEmpty()) {
+            return "unknown";
+        }
+        return endpoint;
+    }
+
     public static void interceptUri(URI uri) throws IOException{
        boolean shouldBlockUri = false;
         try {
@@ -117,6 +145,63 @@ public class Links {
         if(shouldBlockUri) {
             throw new IOException("Block uri");
         }
+    }
+
+    private static void logRequest(String endpointName, URI uri) {
+        FileWriter writer = null;
+        try {
+            File logDir = resolveLogDir();
+            if (!logDir.exists() && !logDir.mkdirs()) {
+                return;
+            }
+
+            File logFile = new File(logDir, endpointName + "-request.log");
+            writer = new FileWriter(logFile, true);
+
+            String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date());
+            writer.write("[" + timestamp + "] URL=" + uri.toString());
+            writer.write("\n");
+        } catch (Exception ex) {
+            Logger.printException(() -> "logRequest failed", ex);
+        } finally {
+            if (writer != null) {
+                try {
+                    writer.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    private static File resolveLogDir() {
+        File downloads = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File preferred = new File(downloads, "logpico");
+        if (preferred.exists() || preferred.mkdirs()) {
+            return preferred;
+        }
+
+        File appExternal = Utils.getContext().getExternalFilesDir(null);
+        if (appExternal == null) {
+            return preferred;
+        }
+        return new File(appExternal, "logpico");
+    }
+
+    private static String endpointFileName(URI uri) {
+        String path = uri.getPath();
+        if (path == null || path.isEmpty()) {
+            return "root";
+        }
+        String clean = path;
+        if (clean.startsWith("/")) {
+            clean = clean.substring(1);
+        }
+        clean = clean.replace("/", "_");
+        clean = clean.replaceAll("[^a-zA-Z0-9._-]", "_");
+        if (clean.length() > 120) {
+            clean = clean.substring(0, 120);
+        }
+        return clean.isEmpty() ? "root" : clean;
     }
 
     public static String sanitizeUrl(String url){

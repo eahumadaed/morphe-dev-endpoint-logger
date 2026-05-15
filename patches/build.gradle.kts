@@ -2,12 +2,12 @@ group = "crimera"
 
 patches {
     about {
-        name = "Piko"
-        description = "Morphe patches focused on Twitter/X"
-        source = "git@github.com:crimera/piko.git"
-        author = "crimera"
-        contact = "na"
-        website = "https://github.com/crimera/piko"
+        name = "Morphe Dev Endpoint Logger"
+        description = "Development-only Morphe patch set for endpoint request/response logging experiments"
+        source = "https://github.com/eahumadaed/morphe-dev-endpoint-logger.git"
+        author = "eahumadaed"
+        contact = "dev-only"
+        website = "https://github.com/eahumadaed/morphe-dev-endpoint-logger"
         license = "GNU General Public License v3.0"
     }
 }

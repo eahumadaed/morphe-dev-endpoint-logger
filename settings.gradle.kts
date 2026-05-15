@@ -1,4 +1,4 @@
-rootProject.name = "piko-twitter-patches"
+rootProject.name = "morphe-dev-endpoint-logger"
 
 buildCache {
     local {

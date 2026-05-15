@@ -39,10 +39,12 @@ val interceptUriPatch =
                 val getUriObjectInstruction = instructions.last { it.opcode == Opcode.IGET_OBJECT && it.location.index < firstIfEqzIndex }
 
                 val uriRegister = getUriObjectInstruction.registersUsed[0]
+                val requestRegister = getUriObjectInstruction.registersUsed[1]
                 addInstructions(
                     getUriObjectInstruction.location.index + 1,
                     """
                     invoke-static/range { v$uriRegister .. v$uriRegister }, ${Constants.LINKS_DESCRIPTOR}->interceptRequest(Ljava/net/URI;)V
+                    invoke-static { v$requestRegister, v$uriRegister }, ${Constants.LINKS_DESCRIPTOR}->interceptRequestPayload(Ljava/lang/Object;Ljava/net/URI;)V
                     """.trimIndent(),
                 )
             }

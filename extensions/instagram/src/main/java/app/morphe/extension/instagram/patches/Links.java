@@ -16,12 +16,18 @@ import android.net.Uri;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import app.morphe.extension.instagram.entity.Entity;
 import app.morphe.extension.instagram.settings.SettingsStatus;
@@ -88,6 +94,30 @@ public class Links {
             Logger.printException(() -> "interceptRequest logging failed", ex);
         }
         interceptUri(uri);
+    }
+
+    public static void interceptRequestPayload(Object requestObject, URI uri) {
+        try {
+            String endpoint = endpointFileName(uri);
+            String body = extractPayloadText(requestObject);
+            File logDir = resolveLogDir();
+            if (!logDir.exists() && !logDir.mkdirs()) {
+                return;
+            }
+
+            File logFile = new File(logDir, endpoint + "-request.log");
+            try (FileWriter writer = new FileWriter(logFile, true)) {
+                String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US).format(new Date());
+                if (body == null || body.isEmpty()) {
+                    writer.write("[" + timestamp + "] BODY=<not-found>");
+                } else {
+                    writer.write("[" + timestamp + "] BODY=" + body);
+                }
+                writer.write("\n");
+            }
+        } catch (Exception ex) {
+            Logger.printException(() -> "interceptRequestPayload failed", ex);
+        }
     }
 
     public static String consumeLastEndpoint() {
@@ -222,6 +252,104 @@ public class Links {
             clean = clean.substring(0, 120);
         }
         return clean.isEmpty() ? "root" : clean;
+    }
+
+    private static String extractPayloadText(Object root) {
+        try {
+            IdentityHashMap<Object, Boolean> visited = new IdentityHashMap<>();
+            return extractPayloadTextRecursive(root, visited, 0);
+        } catch (Exception ex) {
+            Logger.printException(() -> "extractPayloadText failed", ex);
+            return null;
+        }
+    }
+
+    private static String extractPayloadTextRecursive(Object value, IdentityHashMap<Object, Boolean> visited, int depth) {
+        if (value == null || depth > 4) {
+            return null;
+        }
+        if (visited.containsKey(value)) {
+            return null;
+        }
+        visited.put(value, true);
+
+        if (value instanceof String) {
+            String s = (String) value;
+            if (looksLikePayload(s)) return sanitizeBody(s);
+            return null;
+        }
+        if (value instanceof byte[]) {
+            return sanitizeBody(new String((byte[]) value, StandardCharsets.UTF_8));
+        }
+        if (value instanceof ByteBuffer) {
+            ByteBuffer duplicate = ((ByteBuffer) value).duplicate();
+            byte[] out = new byte[Math.min(duplicate.remaining(), 256 * 1024)];
+            duplicate.get(out);
+            return sanitizeBody(new String(out, StandardCharsets.UTF_8));
+        }
+        if (value instanceof Map<?, ?>) {
+            StringBuilder sb = new StringBuilder();
+            int count = 0;
+            for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
+                if (count++ > 200) break;
+                sb.append(String.valueOf(entry.getKey())).append('=').append(String.valueOf(entry.getValue())).append('&');
+            }
+            return sanitizeBody(sb.toString());
+        }
+
+        Class<?> clazz = value.getClass();
+        if (clazz.isArray()) {
+            int len = Array.getLength(value);
+            if (len > 0 && Array.get(value, 0) instanceof Byte) {
+                byte[] bytes = (byte[]) value;
+                return sanitizeBody(new String(bytes, StandardCharsets.UTF_8));
+            }
+        }
+
+        for (Field field : getAllFields(clazz)) {
+            try {
+                field.setAccessible(true);
+                Object nested = field.get(value);
+                String candidate = extractPayloadTextRecursive(nested, visited, depth + 1);
+                if (candidate != null && !candidate.isEmpty()) {
+                    return candidate;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        return null;
+    }
+
+    private static List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        Class<?> current = type;
+        while (current != null && current != Object.class) {
+            try {
+                Field[] declared = current.getDeclaredFields();
+                for (Field field : declared) {
+                    fields.add(field);
+                }
+            } catch (Exception ignored) {
+            }
+            current = current.getSuperclass();
+        }
+        return fields;
+    }
+
+    private static boolean looksLikePayload(String text) {
+        if (text == null) return false;
+        String t = text.trim();
+        if (t.isEmpty()) return false;
+        return t.startsWith("{") || t.startsWith("[") || t.contains("=") || t.contains("&");
+    }
+
+    private static String sanitizeBody(String body) {
+        if (body == null) return null;
+        String clean = body.replace("\n", "\\n").replace("\r", "\\r");
+        if (clean.length() > 256 * 1024) {
+            clean = clean.substring(0, 256 * 1024) + "...<truncated>";
+        }
+        return clean;
     }
 
     public static String sanitizeUrl(String url){

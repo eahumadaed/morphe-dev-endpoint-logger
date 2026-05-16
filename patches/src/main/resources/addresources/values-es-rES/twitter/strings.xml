@@ -9,6 +9,7 @@
     <string name="piko_pref_icon_n_navbar_btn">Configuración de icono de la app y \nbarra de navegación</string>
     <string name="piko_pref_enable_force_pip">modo PiP automáticamente</string>
     <string name="piko_pref_enable_force_pip_desc">Habilita el modo PiP cuando cierras la aplicación</string>
+    <string name="piko_title_premium">Premium</string>
     <!-- Download Settings -->
     <string name="piko_title_download">Descargar</string>
     <string name="piko_pref_video_download">descarga de videos</string>
@@ -28,6 +29,8 @@
     <string name="piko_pref_native_page_desc">Estas funciones nativas de Piko están disponibles en el menú compartir de las publicaciones.</string>
     <string name="piko_title_native_downloader">Descargador nativo</string>
     <string name="piko_title_native_downloader_toggle">Habilitar descargador nativo</string>
+    <string name="piko_pref_native_downloader_inline_button">Mostrar botón de descarga en línea</string>
+    <string name="piko_pref_native_downloader_inline_button_desc">Añade un botón de descarga directamente en la barra de acciones de la publicación</string>
     <string name="piko_pref_native_downloader_alert_title">Descargar medios</string>
     <string name="piko_pref_native_downloader_download_all">Descargar todo</string>
     <string name="piko_pref_native_downloader_no_media">No se encontraron medios</string>
@@ -39,6 +42,7 @@
     <string name="piko_native_translator_zero_text">No se encontró texto para traducir</string>
     <string name="piko_native_translator_google">Traductor de Google</string>
     <string name="piko_native_translator_google_v2">Traductor de Google V2</string>
+    <string name="piko_native_translator_fxtwitter">API de FxTwitter</string>
     <string name="piko_title_native_reader_mode">Modo lectura</string>
     <string name="piko_native_reader_mode_grok_thread">Analizar este hilo</string>
     <string name="piko_native_reader_mode_grok_author">Más sobre el autor</string>
@@ -94,6 +98,9 @@
     <string name="piko_pref_pause_search_suggestion_desc">Las sugerencias de búsqueda no se guardarán localmente</string>
     <string name="piko_pref_search_suggestion">Sugerencias de búsqueda</string>
     <string name="piko_pref_search_suggestion_desc">Ocultar/eliminar sugerencias de búsqueda en la sección Explorar</string>
+    <string name="piko_disunify_xchat_system">Separar sistema de xchat</string>
+    <string name="piko_disunify_xchat_system_desc">Recupera funciones clásicas como mensajes y menú de compartir</string>
+    <string name="piko_legacy_share_link">Enlaces de compartición clásicos</string>
     <!-- Feature flags Settings -->
     <string name="piko_title_feature_flags">Flags de características</string>
     <string name="piko_pref_feature_flags">Añadir Flags de características</string>
@@ -128,6 +135,8 @@
     <string name="piko_pref_hide_social_proof">Ocultar seguidores por contexto</string>
     <string name="piko_pref_hide_social_proof_desc">Oculta seguidores por contexto en los perfiles</string>
     <string name="piko_pref_hide_community_badge">Ocultar insignias de la comunidad</string>
+    <string name="piko_pref_hide_badge_nav_bar">Ocultar insignias en la barra de navegación</string>
+    <string name="piko_pref_hide_badge_nav_bar_desc">Oculta contadores y avisos de notificación en los iconos de la barra de navegación</string>
     <string name="piko_pref_hide_post_inline_metrics">Ocultar métricas de vista en línea de la publicación</string>
     <string name="piko_pref_hide_post_inline_metrics_desc">Oculta los recuentos de me gusta, reposts, etc. en la vista en línea</string>
     <string name="piko_pref_hide_post_detailed_metrics">Ocultar métricas de vista detallada de la publicación</string>
@@ -177,6 +186,8 @@
     <string name="piko_pref_import_failed">Error: Fallo al importar %s</string>
     <string name="piko_pref_export_no_uri">Error: No se proporcionó destino</string>
     <string name="piko_pref_import_no_uri">Error: No se proporcionó archivo</string>
+    <string name="piko_pref_export_login_token">Exportar token de inicio de sesión</string>
+    <string name="piko_pref_import_login_token">Importar token de inicio de sesión</string>
     <!-- About -->
     <string name="piko_title_about">Acerca de</string>
     <string name="piko_pref_app_version">Versión de la app</string>

@@ -1,25 +1,13 @@
-# Morphe Dev Endpoint Logger
+# edpiko
 
-Development-only fork for endpoint telemetry experiments on patched app traffic paths.
+Fork de desarrollo para pruebas locales con parches de Morphe.
 
-## Scope
+## Estado actual
 
-- Adds request endpoint logging to `logpico/*-request.log`.
-- Adds response payload logging (InputStream tap) to `logpico/*-response.log`.
-- Keeps original behavior guards and exception safety to avoid app-flow interruption.
+- Se retiró la instrumentación de logs de endpoints (`request/response`) usada en pruebas anteriores.
+- El comportamiento de parches quedó restaurado al flujo base del proyecto.
 
-## Log location
+## Uso
 
-Preferred:
-
-- `Download/logpico/`
-
-Fallback (if public downloads write is restricted):
-
-- `Android/data/<target.package>/files/logpico/`
-
-## Notes
-
-- This repository is for local development experiments only.
-- Response correlation to endpoint is best-effort (`ThreadLocal`), may be imperfect under highly async flows.
-- Build requires Morphe plugin registry access configured in Gradle credentials.
+- Repositorio orientado a desarrollo y validación local.
+- Para compilar y publicar, se requiere acceso al registro de plugins de Morphe configurado en credenciales de Gradle.

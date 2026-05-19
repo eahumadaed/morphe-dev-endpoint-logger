@@ -1,7 +1,7 @@
 {
-  "created_at": "2026-05-15T14:39:45",
-  "description": "# [1.3.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.2.0...v1.3.0) (2026-05-15)\n\n\n### Bug Fixes\n\n* move response hook injector into patch execute context ([4565cca](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/4565cca428bf4d9bfeca1a89b2c03f9da77d9c64))\n\n\n### Features\n\n* widen response hooks and capture bytebuffer/stringbuilder payloads ([cf606b6](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/cf606b623fdc60ab7590fa658afad6cf4ef1d589))",
-  "download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.3.0/patches-1.3.0.mpp",
-  "signature_download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.3.0/patches-1.3.0.mpp.asc",
-  "version": "1.3.0"
+  "created_at": "2026-05-19T00:58:38",
+  "description": "## [1.3.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.3.0...v1.3.1) (2026-05-19)\n\n\n### Reverts\n\n* remove endpoint logger instrumentation and restore base instagram hooks ([19f42ba](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/19f42ba4d36a0369c9dd6c92658a4e1bcc7df5c9))",
+  "download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.3.1/patches-1.3.1.mpp",
+  "signature_download_url": "https://github.com/eahumadaed/morphe-dev-endpoint-logger/releases/download/v1.3.1/patches-1.3.1.mpp.asc",
+  "version": "1.3.1"
 }

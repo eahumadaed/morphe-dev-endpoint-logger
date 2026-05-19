@@ -1,3 +1,10 @@
+## [1.3.1](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.3.0...v1.3.1) (2026-05-19)
+
+
+### Reverts
+
+* remove endpoint logger instrumentation and restore base instagram hooks ([19f42ba](https://github.com/eahumadaed/morphe-dev-endpoint-logger/commit/19f42ba4d36a0369c9dd6c92658a4e1bcc7df5c9))
+
 # [1.3.0](https://github.com/eahumadaed/morphe-dev-endpoint-logger/compare/v1.2.0...v1.3.0) (2026-05-15)
 
 
